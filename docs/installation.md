@@ -45,6 +45,28 @@ greenai --help
 greenai system-info
 ```
 
+## Troubleshooting: `greenai` is not recognized
+
+This means the install succeeded but the scripts directory is not on PATH. It is common
+with a user-level install (`pip install --user`) outside a virtual environment.
+
+Run the CLI as a module instead:
+
+```bash
+python -m greenai --version
+python -m greenai system-info
+```
+
+Or add the scripts directory that pip named in its warning to PATH. On Windows:
+
+```powershell
+$env:Path += ";$env:APPDATA\Python\Python314\Scripts"   # current session
+setx PATH "$env:Path;$env:APPDATA\Python\Python314\Scripts"   # persist
+```
+
+Using a virtual environment avoids the problem entirely, because activating it puts the
+`greenai` script on PATH.
+
 ## Maintainers: publishing a release
 
 1. Ensure version in `pyproject.toml` is bumped (PyPI rejects re-uploads).

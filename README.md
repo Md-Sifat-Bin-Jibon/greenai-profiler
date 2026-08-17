@@ -73,6 +73,14 @@ greenai --help
 greenai system-info
 ```
 
+If your shell reports `greenai` is not recognized, the Python scripts directory is not on
+your PATH. Use the module form instead:
+
+```bash
+python -m greenai --version
+python -m greenai system-info
+```
+
 ### From source (contributors)
 
 ```bash

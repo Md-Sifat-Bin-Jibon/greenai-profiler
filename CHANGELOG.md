@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - GitHub Actions release workflow for PyPI Trusted Publisher (`release.yml`).
+- `python -m greenai` entry point for hosts where the console script is not on PATH.
 
 ### Fixed
 
