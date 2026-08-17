@@ -14,10 +14,10 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -33,12 +33,14 @@ jobs:
         run: ruff format --check src tests examples
 
       - name: Type check
-        run: mypy src
+        run: mypy --show-error-codes
 
       - name: Tests
+        if: success() || failure()
         run: pytest
 
       - name: Build package
+        if: success() || failure()
         run: |
           pip install build
           python -m build

@@ -129,8 +129,9 @@ select = [
 [tool.mypy]
 python_version = "3.12"
 pretty = true
+explicit_package_bases = true
 mypy_path = "src"
-packages = ["greenai"]
+files = ["src/greenai"]
 exclude = ["tests/", "examples/", "benchmarks/"]
 ignore_missing_imports = true
 warn_unused_ignores = false
@@ -140,10 +141,16 @@ no_implicit_optional = true
 
 [[tool.mypy.overrides]]
 module = [
+    "torch",
     "torch.*",
+    "onnx",
     "onnx.*",
+    "onnxruntime",
     "onnxruntime.*",
+    "pynvml",
     "pynvml.*",
+    "matplotlib",
     "matplotlib.*",
 ]
 ignore_missing_imports = true
+follow_imports = "skip"

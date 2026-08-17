@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - GitHub Actions release workflow for PyPI Trusted Publisher (`release.yml`).
 
+### Fixed
+
+- CI type-check (`mypy`) on Ubuntu for the `src` layout.
+
 ## [0.1.0] - 2026-08-13
 
 ### Added
