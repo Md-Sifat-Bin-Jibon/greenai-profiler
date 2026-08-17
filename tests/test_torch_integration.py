@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 torch = pytest.importorskip("torch")
@@ -98,3 +100,89 @@ def test_recommendations_and_compare(tiny_model: torch.nn.Module) -> None:
     }
     comparison = compare_results(doc, optimized)
     assert any(m.name.startswith("Latency") for m in comparison.metrics)
+
+
+def test_state_dict_requires_architecture(tiny_model: torch.nn.Module, tmp_path: Path) -> None:
+    from greenai.exceptions import ModelLoadError
+    from greenai.models.pytorch import PyTorchModelAdapter
+
+    path = tmp_path / "weights.pt"
+    torch.save(tiny_model.state_dict(), path)
+
+    with pytest.raises(ModelLoadError, match="state_dict"):
+        PyTorchModelAdapter(path, device="cpu", example_input_shape=[1, 28, 28]).load()
+
+    architecture = torch.nn.Sequential(
+        torch.nn.Flatten(),
+        torch.nn.Linear(28 * 28, 32),
+        torch.nn.ReLU(),
+        torch.nn.Linear(32, 10),
+    )
+    adapter = PyTorchModelAdapter(
+        path,
+        device="cpu",
+        architecture=architecture,
+        example_input_shape=[1, 28, 28],
+    )
+    loaded = adapter.load()
+    info = adapter.inspect()
+    assert loaded is architecture
+    assert info.parameter_count is not None and info.parameter_count > 0
+    assert any("state_dict" in note for note in info.notes)
+
+
+def test_pickled_module_requires_allow_pickle(tiny_model: torch.nn.Module, tmp_path: Path) -> None:
+    from greenai.exceptions import ModelLoadError
+    from greenai.models.pytorch import PyTorchModelAdapter
+
+    path = tmp_path / "module.pt"
+    torch.save(tiny_model, path)
+    with pytest.raises(ModelLoadError, match="allow-pickle"):
+        PyTorchModelAdapter(path, device="cpu").load()
+
+    loaded = PyTorchModelAdapter(path, device="cpu", allow_pickle=True).load()
+    assert isinstance(loaded, torch.nn.Module)
+
+
+def test_benchmark_polls_energy_monitor(tiny_model: torch.nn.Module) -> None:
+    from greenai.benchmark import BenchmarkConfig, run_benchmark
+    from greenai.hardware.energy import EnergyMonitor, EnergyResult, EnergyStatus
+    from greenai.models.pytorch import PyTorchModelAdapter
+
+    class CountingMonitor(EnergyMonitor):
+        name = "counting"
+
+        def __init__(self) -> None:
+            self.polls = 0
+
+        def available(self) -> bool:
+            return True
+
+        def start(self) -> None:
+            return None
+
+        def poll(self) -> None:
+            self.polls += 1
+
+        def stop(self, inferences: int) -> EnergyResult:
+            return EnergyResult(
+                status=EnergyStatus.UNAVAILABLE,
+                method=self.name,
+                inferences=inferences,
+                reason="test monitor",
+            )
+
+    monitor = CountingMonitor()
+    adapter = PyTorchModelAdapter(tiny_model, device="cpu", example_input_shape=[1, 28, 28])
+    run_benchmark(
+        adapter,
+        BenchmarkConfig(
+            device="cpu",
+            input_shape=[1, 28, 28],
+            warmup=1,
+            iterations=5,
+            measure_energy=True,
+        ),
+        energy_monitor=monitor,
+    )
+    assert monitor.polls == 5

@@ -3,6 +3,7 @@
 ## PyTorch
 
 - In-memory `nn.Module`
+- `state_dict` checkpoints via `architecture=` (see `examples/state_dict_workflow.py`)
 - Checkpoints loadable with `weights_only=True`
 - Full pickled modules only with `--allow-pickle`
 

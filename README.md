@@ -1,5 +1,9 @@
 # Green AI Profiler
 
+[![CI](https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/actions/workflows/ci.yml/badge.svg)](https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+
 **Open-source AI model profiler** for **PyTorch** (and ONNX) that measures **latency**, **throughput**, **memory**, **energy consumption**, and **layer-wise bottlenecks**—so you can build faster, cheaper, and greener models without guessing.
 
 Search terms this project covers: *AI model profiler*, *PyTorch latency benchmark*, *ML energy measurement*, *green AI*, *model efficiency toolkit*, *inference performance profiler*, *NVML / RAPL energy*, *layer-wise profiling*, *sustainable machine learning*.
@@ -39,7 +43,7 @@ Today the project is installed **from source** (not published to PyPI yet). User
 **Requirements:** Python 3.11+
 
 ```bash
-git clone https://github.com/YOUR_ORG/greenai-profiler.git
+git clone https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler.git
 cd greenai-profiler
 
 python -m venv .venv
@@ -101,7 +105,7 @@ greenai compare baseline.json optimized.json
 greenai report results.json --html report.html
 ```
 
-`--allow-pickle` is required for full `torch.save(model, ...)` module checkpoints. Only use it for models you trust. Prefer `state_dict` workflows when possible. See [docs/security.md](docs/security.md).
+`--allow-pickle` is required for full `torch.save(model, ...)` module checkpoints. Only use it for models you trust. Prefer a `state_dict` plus reconstructed architecture — see [`examples/state_dict_workflow.py`](examples/state_dict_workflow.py) and [docs/security.md](docs/security.md).
 
 ### 3. Use it from Python
 
@@ -215,7 +219,7 @@ See [docs/architecture.md](docs/architecture.md).
 | Layer profiling | [docs/layer-profiling.md](docs/layer-profiling.md) |
 | Energy measurement | [docs/energy-measurement.md](docs/energy-measurement.md) |
 | Limitations | [docs/limitations.md](docs/limitations.md) |
-| Security | [docs/security.md](docs/security.md) |
+| Security | [SECURITY.md](SECURITY.md), [docs/security.md](docs/security.md) |
 | Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## Limitations

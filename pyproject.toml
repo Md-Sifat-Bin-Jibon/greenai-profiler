@@ -74,11 +74,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/green-ai-profiler/green-ai-profiler"
-Documentation = "https://github.com/green-ai-profiler/green-ai-profiler#readme"
-Repository = "https://github.com/green-ai-profiler/green-ai-profiler"
-Issues = "https://github.com/green-ai-profiler/green-ai-profiler/issues"
-Changelog = "https://github.com/green-ai-profiler/green-ai-profiler/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler"
+Documentation = "https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler#readme"
+Repository = "https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler"
+Issues = "https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/issues"
+Changelog = "https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/blob/main/CHANGELOG.md"
 
 [project.scripts]
 greenai = "greenai.cli:app"

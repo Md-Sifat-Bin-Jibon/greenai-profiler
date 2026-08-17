@@ -51,6 +51,10 @@ class EnergyMonitor(ABC):
     def start(self) -> None:
         """Begin an energy measurement window."""
 
+    def poll(self) -> None:
+        """Optional mid-run sample; default is a no-op."""
+        return None
+
     @abstractmethod
     def stop(self, inferences: int) -> EnergyResult:
         """End the window and return an EnergyResult."""

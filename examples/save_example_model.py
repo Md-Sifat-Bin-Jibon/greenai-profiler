@@ -27,12 +27,17 @@ def build_tiny_cnn() -> torch.nn.Module:
 def main() -> None:
     out_dir = Path(__file__).resolve().parent / "artifacts"
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / "tiny_cnn.pt"
     model = build_tiny_cnn()
     model.eval()
-    # Full module checkpoint for the example workflow; requires --allow-pickle.
-    torch.save(model, path)
-    print(f"Wrote {path}")
+
+    module_path = out_dir / "tiny_cnn.pt"
+    # Full module checkpoint for the CLI workflow; requires --allow-pickle.
+    torch.save(model, module_path)
+    print(f"Wrote {module_path}")
+
+    state_path = out_dir / "tiny_cnn_state_dict.pt"
+    torch.save(model.state_dict(), state_path)
+    print(f"Wrote {state_path}")
 
 
 if __name__ == "__main__":

@@ -50,6 +50,20 @@ def test_nvidia_stop_without_samples() -> None:
     assert result.status == EnergyStatus.UNAVAILABLE
 
 
+def test_nvidia_poll_samples_when_interval_elapsed() -> None:
+    monitor = NvidiaEnergyMonitor(sample_interval_s=0.0)
+    monitor._pynvml = type(
+        "FakeNvml",
+        (),
+        {"nvmlDeviceGetPowerUsage": staticmethod(lambda handle: 50000)},
+    )
+    monitor._handle = object()
+    monitor._t0 = 0.0
+    monitor._samples = []
+    monitor.poll()
+    assert monitor._samples == [50.0]
+
+
 def test_nvidia_integrates_power_samples() -> None:
     monitor = NvidiaEnergyMonitor()
 

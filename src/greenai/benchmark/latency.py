@@ -17,6 +17,7 @@ def measure_latency(
     iterations: int = 50,
     batch_size: int = 1,
     keep_raw: bool = False,
+    on_iteration: Callable[[], None] | None = None,
 ) -> LatencyStats:
     """Time repeated calls to ``forward_fn`` with optional CUDA sync."""
     if warmup < 0 or iterations < 1:
@@ -31,6 +32,8 @@ def measure_latency(
         with timed_section(device) as elapsed:
             forward_fn()
         samples.append(elapsed())
+        if on_iteration is not None:
+            on_iteration()
 
     return compute_latency_stats(
         samples,

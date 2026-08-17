@@ -62,7 +62,6 @@ def run_benchmark(
         monitor = monitor or select_energy_monitor(cfg.energy_backend)
         monitor.start()
 
-    # For NVIDIA monitor, poll between iterations when possible.
     latency = measure_latency(
         forward,
         device=cfg.device,
@@ -70,11 +69,11 @@ def run_benchmark(
         iterations=cfg.iterations,
         batch_size=cfg.batch_size,
         keep_raw=cfg.keep_raw,
+        on_iteration=monitor.poll if cfg.measure_energy and monitor is not None else None,
     )
 
     energy: EnergyResult | None = None
     if cfg.measure_energy and monitor is not None:
-        # Extra polling not needed for RAPL/NVML stop which samples endpoints.
         energy = monitor.stop(inferences=cfg.iterations * cfg.batch_size)
     elif not cfg.measure_energy:
         notes.append("Energy measurement skipped by configuration.")

@@ -64,6 +64,30 @@ def architecture_summary(model: Any, max_lines: int = 40) -> str:
     return "\n".join(lines)
 
 
+_STATE_DICT_KEYS = ("state_dict", "model_state_dict", "model", "module")
+
+
+def _is_tensor_map(obj: Any, torch: Any) -> bool:
+    if not isinstance(obj, dict) or not obj:
+        return False
+    return all(isinstance(value, torch.Tensor) for value in obj.values())
+
+
+def _extract_state_dict(obj: Any, torch: Any) -> Any | None:
+    """Return a tensor mapping if ``obj`` looks like a weights-only checkpoint."""
+    if _is_tensor_map(obj, torch):
+        return obj
+    if not isinstance(obj, dict):
+        return None
+    for key in _STATE_DICT_KEYS:
+        inner = obj.get(key)
+        if isinstance(inner, torch.nn.Module):
+            continue
+        if _is_tensor_map(inner, torch):
+            return inner
+    return None
+
+
 class PyTorchModelAdapter(BaseModelAdapter):
     """Adapter for ``nn.Module`` instances and ``.pt`` / ``.pth`` checkpoints."""
 
@@ -77,11 +101,13 @@ class PyTorchModelAdapter(BaseModelAdapter):
         allow_pickle: bool = False,
         example_input_shape: list[int] | None = None,
         name: str | None = None,
+        architecture: Any | None = None,
     ) -> None:
         self.source = source
         self.device = device
         self.allow_pickle = allow_pickle
         self.example_input_shape = example_input_shape
+        self.architecture = architecture
         self._name = name
         self._model: Any | None = None
         self._path: str | None = None
@@ -139,8 +165,10 @@ class PyTorchModelAdapter(BaseModelAdapter):
         except Exception as exc:
             raise ModelLoadError(
                 f"Failed to load checkpoint safely from {path}. "
-                "If this is a full pickled nn.Module and you trust the file, "
-                "re-run with --allow-pickle. "
+                "This usually means the file is a pickled nn.Module (not a state_dict). "
+                "If you fully trust the file, re-run with --allow-pickle. "
+                "Safer path: save model.state_dict() and load it into a reconstructed "
+                "architecture (see examples/state_dict_workflow.py). "
                 f"Underlying error: {exc}"
             ) from exc
 
@@ -148,15 +176,46 @@ class PyTorchModelAdapter(BaseModelAdapter):
         if isinstance(obj, torch.nn.Module):
             return obj
         if isinstance(obj, dict):
-            # Common patterns: {"model": module} or state_dict-only.
-            for key in ("model", "module", "state_dict"):
+            for key in ("model", "module"):
                 if key in obj and isinstance(obj[key], torch.nn.Module):
                     return obj[key]
+            state = _extract_state_dict(obj, torch)
+            if state is not None:
+                return self._load_state_dict(state, torch)
             raise ModelLoadError(
-                "Checkpoint appears to be a state dict or dict without an nn.Module. "
-                "Provide an in-memory constructed model, or save a full module checkpoint."
+                "Checkpoint is a dict without an nn.Module or a recognizable state_dict. "
+                "Reconstruct the model in Python and pass architecture=..., "
+                "or see examples/state_dict_workflow.py."
             )
         raise ModelLoadError(f"Unsupported checkpoint type: {type(obj)!r}")
+
+    def _load_state_dict(self, state: Any, torch: Any) -> Any:
+        if self.architecture is None:
+            raise ModelLoadError(
+                "Checkpoint is a state_dict (weights only), not a full nn.Module. "
+                "Reconstruct the model in Python and pass it as architecture=..., "
+                "or see examples/state_dict_workflow.py. "
+                "--allow-pickle will not help: there is no serialized module to unpickle."
+            )
+        if not isinstance(self.architecture, torch.nn.Module):
+            raise ModelLoadError("architecture must be a torch.nn.Module.")
+        try:
+            incompatible = self.architecture.load_state_dict(state)
+        except Exception as exc:
+            raise ModelLoadError(
+                f"Failed to load state_dict into the provided architecture: {exc}"
+            ) from exc
+        missing = list(getattr(incompatible, "missing_keys", []) or [])
+        unexpected = list(getattr(incompatible, "unexpected_keys", []) or [])
+        if missing or unexpected:
+            raise ModelLoadError(
+                "state_dict does not match the provided architecture. "
+                f"Missing keys: {missing[:8]}; unexpected keys: {unexpected[:8]}."
+            )
+        self._notes.append("Loaded weights into user-provided architecture from state_dict.")
+        if self._name is None:
+            self._name = self.architecture.__class__.__name__
+        return self.architecture
 
     def inspect(self) -> ModelInfo:
         model = self.load()
