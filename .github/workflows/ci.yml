@@ -34,8 +34,23 @@ jobs:
 
       - name: Type check
         run: |
+          set +e
           mypy --version
-          python -m mypy --no-site-packages --explicit-package-bases -p greenai
+          python -m mypy --no-pretty --show-error-codes --explicit-package-bases -p greenai > mypy-out.txt 2>&1
+          code=$?
+          cat mypy-out.txt
+          {
+            echo "### mypy (python ${{ matrix.python-version }}) exit=$code"
+            echo '```'
+            cat mypy-out.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$code" -ne 0 ]; then
+            head -n 20 mypy-out.txt | while IFS= read -r line; do
+              echo "::error::mypy: $line"
+            done
+          fi
+          exit "$code"
 
       - name: Tests
         if: success() || failure()
