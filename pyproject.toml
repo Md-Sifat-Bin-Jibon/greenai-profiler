@@ -1,0 +1,149 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "green-ai-profiler"
+version = "0.1.0"
+description = "Open-source PyTorch AI model profiler for latency, memory, energy (NVML/RAPL), and layer-wise bottlenecks—green AI efficiency without fabricated joules."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [
+    { name = "Green AI Profiler Contributors" },
+]
+keywords = [
+    "ai-model-profiler",
+    "pytorch-profiler",
+    "green-ai",
+    "sustainable-ai",
+    "energy-efficient-ml",
+    "model-energy-measurement",
+    "inference-latency",
+    "throughput-benchmark",
+    "memory-profiling",
+    "layer-wise-profiling",
+    "ml-benchmark",
+    "deep-learning-performance",
+    "onnx",
+    "nvml",
+    "rapl",
+    "mlops",
+    "carbon-aware",
+    "model-optimization",
+    "pytorch",
+    "machine-learning",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Benchmark",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "numpy>=1.26",
+    "psutil>=5.9",
+    "pydantic>=2.0",
+    "rich>=13.0",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.1"]
+onnx = ["onnx>=1.15", "onnxruntime>=1.16"]
+nvidia = ["nvidia-ml-py>=12.0"]
+viz = ["matplotlib>=3.8"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "types-psutil",
+]
+all = [
+    "green-ai-profiler[torch,onnx,nvidia,viz,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/green-ai-profiler/green-ai-profiler"
+Documentation = "https://github.com/green-ai-profiler/green-ai-profiler#readme"
+Repository = "https://github.com/green-ai-profiler/green-ai-profiler"
+Issues = "https://github.com/green-ai-profiler/green-ai-profiler/issues"
+Changelog = "https://github.com/green-ai-profiler/green-ai-profiler/blob/main/CHANGELOG.md"
+
+[project.scripts]
+greenai = "greenai.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/greenai"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/examples",
+    "/LICENSE",
+    "/README.md",
+    "/CHANGELOG.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers"
+markers = [
+    "hardware: tests that require real GPU/hardware energy APIs",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests", "examples"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+"src/greenai/cli.py" = ["B008"]
+"src/greenai/reporting/html.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+pretty = true
+mypy_path = "src"
+packages = ["greenai"]
+exclude = ["tests/", "examples/", "benchmarks/"]
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = [
+    "torch.*",
+    "onnx.*",
+    "onnxruntime.*",
+    "pynvml.*",
+    "matplotlib.*",
+]
+ignore_missing_imports = true
