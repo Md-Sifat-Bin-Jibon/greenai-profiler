@@ -33,7 +33,9 @@ jobs:
         run: ruff format --check src tests examples
 
       - name: Type check
-        run: mypy --show-error-codes
+        run: |
+          mypy --version
+          python -m mypy --no-site-packages --explicit-package-bases -p greenai
 
       - name: Tests
         if: success() || failure()

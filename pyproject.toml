@@ -131,13 +131,13 @@ python_version = "3.12"
 pretty = true
 explicit_package_bases = true
 mypy_path = "src"
-files = ["src/greenai"]
 exclude = ["tests/", "examples/", "benchmarks/"]
 ignore_missing_imports = true
 warn_unused_ignores = false
 check_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
+no_site_packages = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -153,4 +153,3 @@ module = [
     "matplotlib.*",
 ]
 ignore_missing_imports = true
-follow_imports = "skip"
