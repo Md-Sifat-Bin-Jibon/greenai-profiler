@@ -1,6 +1,7 @@
 # Green AI Profiler
 
 [![CI](https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/actions/workflows/ci.yml/badge.svg)](https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/green-ai-profiler.svg)](https://pypi.org/project/green-ai-profiler/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
 
@@ -9,7 +10,7 @@
 Search terms this project covers: *AI model profiler*, *PyTorch latency benchmark*, *ML energy measurement*, *green AI*, *model efficiency toolkit*, *inference performance profiler*, *NVML / RAPL energy*, *layer-wise profiling*, *sustainable machine learning*.
 
 ```text
-pip install -e ".[torch]"
+pip install "green-ai-profiler[torch]"
 greenai profile model.pt --allow-pickle --input-shape 1,28,28
 ```
 
@@ -36,16 +37,11 @@ Energy is hardware-dependent. This project **never fabricates joules**. If a bac
 
 ## How people run this
 
-Today the project is installed **from source** (not published to PyPI yet). Users clone the repo, create a virtualenv, install the package, then use the `greenai` CLI or the Python API.
-
-### 1. Clone and install
+### 1. Install from PyPI (recommended)
 
 **Requirements:** Python 3.11+
 
 ```bash
-git clone https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler.git
-cd greenai-profiler
-
 python -m venv .venv
 
 # Windows
@@ -55,19 +51,19 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -U pip
-pip install -e ".[torch]"
+pip install "green-ai-profiler[torch]"
 ```
 
 Useful extras:
 
 | Extra | Install | Purpose |
 |---|---|---|
-| `torch` | `pip install -e ".[torch]"` | Profile PyTorch models (recommended) |
-| `onnx` | `pip install -e ".[onnx]"` | ONNX inspection / runtime support |
-| `nvidia` | `pip install -e ".[nvidia]"` | NVIDIA NVML energy via `nvidia-ml-py` |
-| `viz` | `pip install -e ".[viz]"` | Plotting helpers |
-| `dev` | `pip install -e ".[dev]"` | Tests and lint tools |
-| `all` | `pip install -e ".[all]"` | Everything above |
+| `torch` | `pip install "green-ai-profiler[torch]"` | Profile PyTorch models (recommended) |
+| `onnx` | `pip install "green-ai-profiler[onnx]"` | ONNX inspection / runtime support |
+| `nvidia` | `pip install "green-ai-profiler[nvidia]"` | NVIDIA NVML energy via `nvidia-ml-py` |
+| `viz` | `pip install "green-ai-profiler[viz]"` | Plotting helpers |
+| `dev` | `pip install "green-ai-profiler[dev]"` | Tests and lint tools |
+| `all` | `pip install "green-ai-profiler[all]"` | Everything above |
 
 Verify the install:
 
@@ -75,6 +71,16 @@ Verify the install:
 greenai --version
 greenai --help
 greenai system-info
+```
+
+### From source (contributors)
+
+```bash
+git clone https://github.com/Md-Sifat-Bin-Jibon/greenai-profiler.git
+cd greenai-profiler
+python -m venv .venv
+# activate the venv, then:
+pip install -e ".[torch,dev]"
 ```
 
 ### 2. Profile a model (CLI)
@@ -241,7 +247,6 @@ pytest
 
 ## Roadmap
 
-- Publish to PyPI (`pip install green-ai-profiler`)
 - Broader ONNX Runtime benchmarking
 - Static INT8 calibration workflows
 - Edge/Android measurement import protocol

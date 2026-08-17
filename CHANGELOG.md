@@ -9,18 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- GitHub CI / license / Python badges and canonical repo URLs.
-- `SECURITY.md` and a pull request template.
-- `state_dict` loading via `PyTorchModelAdapter(..., architecture=...)` with
-  clearer errors for weights-only vs pickled modules.
-- Example workflow: `examples/state_dict_workflow.py`.
-- CLI tests for `profile`, `benchmark`, `compare`, `report`, and pickle refusal.
-- Mid-run energy `poll()` during timed benchmark iterations (NVML sampling).
-
-### Changed
-
-- Package metadata (`[project.urls]`) now points at
-  `Md-Sifat-Bin-Jibon/greenai-profiler`.
+- GitHub Actions release workflow for PyPI Trusted Publisher (`release.yml`).
 
 ## [0.1.0] - 2026-08-13
 
@@ -42,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accuracy evaluation interface (user-supplied evaluator).
 - Terminal, JSON, CSV, and lightweight HTML reports.
 - Documentation, examples, tests, and GitHub Actions CI.
+- GitHub CI / license / Python badges and canonical repo URLs.
+- `SECURITY.md` and a pull request template.
+- `state_dict` loading via `PyTorchModelAdapter(..., architecture=...)` with
+  clearer errors for weights-only vs pickled modules.
+- Example workflow: `examples/state_dict_workflow.py`.
+- CLI tests for `profile`, `benchmark`, `compare`, `report`, and pickle refusal.
+- Mid-run energy `poll()` during timed benchmark iterations (NVML sampling).
+
+### Changed
+
+- Package metadata (`[project.urls]`) now points at
+  `Md-Sifat-Bin-Jibon/greenai-profiler`.
 
 ### Notes
 
