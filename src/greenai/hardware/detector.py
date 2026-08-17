@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import importlib
 import platform
 import sys
 from typing import Any
@@ -36,21 +37,31 @@ class HardwareInfo(BaseModel):
         return self.model_dump()
 
 
+def _windows_cpu_name() -> str | None:
+    """Read the CPU brand string from the Windows registry."""
+    # winreg only exists on Windows; typed as Any so non-Windows type checks pass.
+    winreg: Any = importlib.import_module("winreg")
+    key = winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE,
+        r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+    )
+    try:
+        name, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+    finally:
+        winreg.CloseKey(key)
+    if isinstance(name, str) and name.strip():
+        return name.strip()
+    return None
+
+
 def _cpu_name() -> str | None:
     if platform.system() == "Windows":
         try:
-            import winreg
-
-            key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
-            )
-            name, _ = winreg.QueryValueEx(key, "ProcessorNameString")
-            winreg.CloseKey(key)
-            if isinstance(name, str) and name.strip():
-                return name.strip()
-        except OSError:
-            pass
+            resolved = _windows_cpu_name()
+        except (OSError, ImportError):
+            resolved = None
+        if resolved is not None:
+            return resolved
     if platform.system() == "Linux":
         try:
             with open("/proc/cpuinfo", encoding="utf-8") as handle:

@@ -33,31 +33,12 @@ jobs:
         run: ruff format --check src tests examples
 
       - name: Type check
-        run: |
-          set +e
-          mypy --version
-          python -m mypy --no-pretty --show-error-codes --explicit-package-bases -p greenai > mypy-out.txt 2>&1
-          code=$?
-          cat mypy-out.txt
-          {
-            echo "### mypy (python ${{ matrix.python-version }}) exit=$code"
-            echo '```'
-            cat mypy-out.txt
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$code" -ne 0 ]; then
-            head -n 20 mypy-out.txt | while IFS= read -r line; do
-              echo "::error::mypy: $line"
-            done
-          fi
-          exit "$code"
+        run: mypy --show-error-codes
 
       - name: Tests
-        if: success() || failure()
         run: pytest
 
       - name: Build package
-        if: success() || failure()
         run: |
           pip install build
           python -m build

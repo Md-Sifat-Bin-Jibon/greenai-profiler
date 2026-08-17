@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- CI type-check (`mypy`) on Ubuntu for the `src` layout.
+- CI type-check (`mypy`) on Linux: Windows-only `winreg` access in CPU detection
+  is now resolved dynamically instead of failing `attr-defined` checks.
 
 ## [0.1.0] - 2026-08-13
 
